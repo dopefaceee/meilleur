@@ -11,5 +11,5 @@ func main() {
 }
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "<h1>Hello dopefaceee!</h1>")
+	fmt.Fprint(w, "<h1>Hello dopefaceee, try mirroring gitlab!</h1>")
 }
