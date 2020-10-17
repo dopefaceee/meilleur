@@ -2,29 +2,20 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/meilleur/views"
 )
 
 var (
-	homeTemplate    *template.Template
-	contactTemplate *template.Template
+	homeView    *views.View
+	contactView *views.View
 )
 
 func main() {
-
-	var err error
-	homeTemplate, err = template.ParseFiles("views/home.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	contactTemplate, err = template.ParseFiles("views/contact.gohtml")
-	if err != nil {
-		panic(err)
-	}
+	homeView = views.NewView("views/home.gohtml")
+	contactView = views.NewView("views/contact.gohtml")
 
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(notFound)
@@ -35,7 +26,8 @@ func main() {
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeTemplate.Execute(w, nil); err != nil {
+	err := homeView.Template.Execute(w, nil)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -49,7 +41,8 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := contactTemplate.Execute(w, nil); err != nil {
+	err := contactView.Template.Execute(w, nil)
+	if err != nil {
 		panic(err)
 	}
 }
