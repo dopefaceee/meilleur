@@ -1,13 +1,18 @@
 package views
 
-import "html/template"
+import (
+	"html/template"
+	"path/filepath"
+)
+
+var (
+	LayoutDir   string = "views/layouts/"
+	TemplateExt string = ".gohtml"
+)
 
 // NewView for abstraction create a view and layout
 func NewView(layout string, files ...string) *View {
-	files = append(files,
-		"views/layouts/navbar.gohtml",
-		"views/layouts/footer.gohtml",
-		"views/layouts/bootstrap.gohtml")
+	files = append(files, layoutFiles()...)
 	t, err := template.ParseFiles(files...)
 	if err != nil {
 		panic(err)
@@ -17,6 +22,15 @@ func NewView(layout string, files ...string) *View {
 		Template: t,
 		Layout:   layout,
 	}
+}
+
+func layoutFiles() []string {
+	files, err := filepath.Glob(LayoutDir + "*" + TemplateExt)
+	if err != nil {
+		panic(err)
+	}
+
+	return files
 }
 
 type View struct {
