@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/schema"
 	"github.com/meilleur/views"
 )
 
@@ -26,7 +27,27 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// SignupForm data for parsing form using gorilla/schema
+type SignupForm struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+}
+
 // Create is for creating new user
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "This is temporary response.")
+	if err := r.ParseForm(); err != nil {
+		panic(err)
+	}
+
+	dec := schema.NewDecoder()
+	var form SignupForm
+	if err := dec.Decode(&form, r.PostForm); err != nil {
+		panic(err)
+	}
+
+	fmt.Fprintln(w, form)
+
+	fmt.Fprintln(w, r.PostForm["email"])
+	fmt.Fprintln(w, r.PostForm["password"])
+
 }
