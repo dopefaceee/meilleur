@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/meilleur/models"
 
 	_ "github.com/lib/pq"
 )
@@ -17,27 +16,19 @@ const (
 	dbname   = "lenslocked_dev"
 )
 
-type User struct {
-	gorm.Model
-	Name  string
-	Email string `gorm:"not null;unique_index"`
-}
-
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port= %d  user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
+	//db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 
+	us, err := models.NewUserService(psqlInfo)
 	if err != nil {
 		panic(err)
 	}
 
-	// user := User{
-	// 	Model: gorm.Model{
-	// 		ID:        1,
-	// 		CreatedAt: time.Now(),
-	// 	},
-	// }
+	user, err := us.ByID(2)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(user)
 
-	// fmt.Println(user.Model.ID)
-	db.AutoMigrate(&User{})
 }
