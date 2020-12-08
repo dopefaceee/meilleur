@@ -25,10 +25,19 @@ func main() {
 		panic(err)
 	}
 
-	user, err := us.ByID(2)
-	if err != nil {
+	//us.DestructiveReset()
+
+	user := models.User{
+		Name:  "Sete Gibernau",
+		Email: "sete@worldf1.com",
+	}
+	if err := us.Create(&user); err != nil {
 		panic(err)
 	}
+	// user, err := us.ByID(2)
+	// if err != nil {
+	// 	panic(err)
+	// }
 	fmt.Println(user)
 
 }
