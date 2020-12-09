@@ -88,6 +88,15 @@ func first(db *gorm.DB, dst interface{}) error {
 
 }
 
+// AutoMigrate helper
+func (us *UserService) AutoMigrate() error {
+	if err := us.db.AutoMigrate(&User{}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // User model
 type User struct {
 	gorm.Model
