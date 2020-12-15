@@ -60,8 +60,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Fprintln(w, "User is", user)
+	signIn(w, &user)
 }
 
 // LoginForm data for parsing form using gorilla/schema
@@ -84,15 +83,24 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintln(w, form)
 
 	user, err := u.us.Authenticate(form.Email, form.Password)
-	switch err {
-	case models.ErrNotFound:
-		fmt.Fprintln(w, "Invalid email address.")
-	case models.ErrInvalidPassword:
-		fmt.Fprintln(w, "Invalid password provided.")
-	case nil:
-		fmt.Fprintln(w, user)
-	default:
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err != nil {
+		switch err {
+		case models.ErrNotFound:
+			fmt.Fprintln(w, "Invalid email address.")
+		case models.ErrInvalidPassword:
+			fmt.Fprintln(w, "Invalid password provided.")
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
 	}
+	signIn(w, user)
+}
 
+func signIn(w http.ResponseWriter, user *models.User) {
+	cookie := http.Cookie{
+		Name:  "email",
+		Value: user.Email,
+	}
+	http.SetCookie(w, &cookie)
 }
