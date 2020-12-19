@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/meilleur/models"
+	"github.com/meilleur/rand"
 
 	"github.com/meilleur/views"
 )
@@ -60,7 +61,11 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	signIn(w, &user)
+	err := u.signIn(w, &user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // LoginForm data for parsing form using gorilla/schema
@@ -94,13 +99,33 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	signIn(w, user)
+	err = u.signIn(w, user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
-func signIn(w http.ResponseWriter, user *models.User) {
+func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
+
+	if user.Remember == "" {
+		token, err := rand.RememberToken()
+		if err != nil {
+			return err
+		}
+		user.Remember = token
+		err = u.us.Update(user)
+		if err != nil {
+			return err
+		}
+	}
+
 	cookie := http.Cookie{
-		Name:  "email",
-		Value: user.Email,
+		Name:  "remember_token",
+		Value: user.Remember,
 	}
 	http.SetCookie(w, &cookie)
+
+	return nil
 }
